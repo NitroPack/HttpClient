@@ -1,0 +1,13 @@
+{
+    "name": "nitropack/httpclient",
+    "type": "library",
+    "description": "HttpClient library written in PHP, without relying on cURL nor url_fopen.",
+    "license": "BSD-2-Clause",
+    "keywords": ["php", "http", "client", "library", "nitropack"],
+    "authors": [
+        {"name": "NitroPack"}
+    ],
+    "autoload": {
+        "psr-4": { "NitroPack\\HttpClient\\": "src/" }
+    }
+}
