@@ -9,5 +9,8 @@
     ],
     "autoload": {
         "psr-4": { "NitroPack\\HttpClient\\": "src/" }
+    },
+    "require": {
+        "nitropack/url": "~v1.0.0"
     }
 }
