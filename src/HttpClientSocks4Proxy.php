@@ -2,8 +2,8 @@
 
 namespace NitroPack\HttpClient;
 
-use Exceptions\ProxyConnectException;
-use Exceptions\ProxyConnectTimedOutException;
+use \NitroPack\HttpClient\Exceptions\ProxyConnectException;
+use \NitroPack\HttpClient\Exceptions\ProxyConnectTimedOutException;
 
 class HttpClientSocks4Proxy extends HttpClientSocksProxy {
     private $isConnectPending;

@@ -3,18 +3,18 @@
 namespace NitroPack\HttpClient;
 
 use \NitroPack\Url\Url;
-use Exceptions\URLInvalidException;
-use Exceptions\URLUnsupportedProtocolException;
-use Exceptions\URLEmptyException;
-use Exceptions\RedirectException;
-use Exceptions\SocketOpenException;
-use Exceptions\SocketTlsTimedOutException;
-use Exceptions\SocketWriteException;
-use Exceptions\SocketReadException;
-use Exceptions\ResponseTooLargeException;
-use Exceptions\SocketReadTimedOutException;
-use Exceptions\ChunkSizeException;
-use Exceptions\ProxyConnectException;
+use \NitroPack\HttpClient\Exceptions\URLInvalidException;
+use \NitroPack\HttpClient\Exceptions\URLUnsupportedProtocolException;
+use \NitroPack\HttpClient\Exceptions\URLEmptyException;
+use \NitroPack\HttpClient\Exceptions\RedirectException;
+use \NitroPack\HttpClient\Exceptions\SocketOpenException;
+use \NitroPack\HttpClient\Exceptions\SocketTlsTimedOutException;
+use \NitroPack\HttpClient\Exceptions\SocketWriteException;
+use \NitroPack\HttpClient\Exceptions\SocketReadException;
+use \NitroPack\HttpClient\Exceptions\ResponseTooLargeException;
+use \NitroPack\HttpClient\Exceptions\SocketReadTimedOutException;
+use \NitroPack\HttpClient\Exceptions\ChunkSizeException;
+use \NitroPack\HttpClient\Exceptions\ProxyConnectException;
 
 class HttpClient {
     public static $MAX_FREE_CONNECTIONS = 100;
