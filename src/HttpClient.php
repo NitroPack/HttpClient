@@ -33,6 +33,10 @@ class HttpClient {
     private static $fetch_end_callback = NULL;
     private static $hosts_cache = array();
     private static $hosts_cache_expire = array();
+    private static $scheme_port_map = array(
+        "http" => 80,
+        "https" => 443
+    );
 
     public static function reapDeadConnections() {
         $connectionsCount = 0;
@@ -137,9 +141,12 @@ class HttpClient {
     }
 
     public $connection_reuse = true;
+    public $addr;
     public $host;
     public $port;
+    public $path;
     public $scheme;
+    public $http_method;
     public $URL;
     public $sock;
     public $connect_timeout;
@@ -224,6 +231,7 @@ class HttpClient {
     public function __construct($URL, $httpConfig = NULL) {
         $this->prevUrl = NULL;
         $this->setURL($URL);
+        $this->http_method = "GET";
 
         $this->connect_timeout = NULL;//in seconds
         $this->ssl_timeout = NULL;//in seconds
@@ -1366,7 +1374,7 @@ class HttpClient {
     public function getRequestHeaders() {
         $headers = array();
         $headers[] = $this->http_method . " " . $this->path . " HTTP/1.1";
-        $headers[] = "host: " . $this->host;
+        $headers[] = "host: " . $this->host . ($this->port != self::$scheme_port_map[$this->scheme] ? ":{$this->port}" : '');
 
         if ($this->accept_deflate) {
             $headers[] = "accept-encoding: gzip";
