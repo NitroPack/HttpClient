@@ -137,16 +137,21 @@ class HttpClientMulti {
             if ($canSleep) {
                 $read = $read ? $read : NULL;
                 $write = $write ? $write : NULL;
-                if (defined("NITROPACK_USE_MICROTIMEOUT") && NITROPACK_USE_MICROTIMEOUT) {
-                    stream_select($read, $write, $except, 0, NITROPACK_USE_MICROTIMEOUT);
-                } else {
-                    $microtimeout = (int)(min($remainingTimeouts) * 1000000);
-                    if ($microtimeout > 0) {
-                        $streamsWithChange = stream_select($read, $write, $except, 0, 0);
-                        if ($streamsWithChange === 0) {
-                            usleep(20000);// 20ms
+
+                if (!empty($read) || !empty($write)) {
+                    if (defined("NITROPACK_USE_MICROTIMEOUT") && NITROPACK_USE_MICROTIMEOUT) {
+                        stream_select($read, $write, $except, 0, NITROPACK_USE_MICROTIMEOUT);
+                    } else {
+                        $microtimeout = (int)(min($remainingTimeouts) * 1000000);
+                        if ($microtimeout > 0) {
+                            $streamsWithChange = stream_select($read, $write, $except, 0, 0);
+                            if ($streamsWithChange === 0) {
+                                usleep(20000);// 20ms
+                            }
                         }
                     }
+                } else {
+                    usleep(20000);// 20ms
                 }
             }
             // End check

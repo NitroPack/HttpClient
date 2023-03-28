@@ -88,14 +88,14 @@ class HttpClient {
             $buffer = stream_get_contents($sock);
             if (strlen($buffer) && HttpClient::$DEBUG) {
                 if (isset(HttpClient::$backtraces[(int)$sock])) {
-                    file_put_contents("/tmp/" . (int)$sock . "_" . microtime(true) . ".nitro_backtrace_log", print_r(HttpClient::$backtraces[(int)$sock], true));
+                    self::forceFilePutContents("/tmp/" . (int)$sock . "_" . microtime(true) . ".nitro_backtrace_log", print_r(HttpClient::$backtraces[(int)$sock], true));
                 } else {
-                    file_put_contents("/tmp/" . (int)$sock . "_" . microtime(true) . ".nitro_log", $buffer);
+                    self::forceFilePutContents("/tmp/" . (int)$sock . "_" . microtime(true) . ".nitro_log", $buffer);
                 }
             }
             $oob = stream_socket_recvfrom($sock, 4096, STREAM_OOB);
             if (strlen($oob) && HttpClient::$DEBUG) {
-                file_put_contents("/tmp/" . (int)$sock . "_" . microtime(true) . ".nitro_log_oob", $oob);
+                self::forceFilePutContents("/tmp/" . (int)$sock . "_" . microtime(true) . ".nitro_log_oob", $oob);
             }
 
             if ($isBlocking) {
@@ -228,6 +228,14 @@ class HttpClient {
     private $privateIpRanges;
     private $isReusingConnection;
 
+    private $dynamicProperties;
+    public function __get($prop) {
+        return !empty($this->dynamicProperties[$prop]) ? $this->dynamicProperties[$prop] : NULL;
+    }
+
+    public function __set($name,$prop) {
+        $this->dynamicProperties[$name] = $prop;
+    }
     public function __construct($URL, $httpConfig = NULL) {
         $this->prevUrl = NULL;
         $this->setURL($URL);
@@ -453,7 +461,7 @@ class HttpClient {
         }
 
         if ($this->cookie_jar) {
-            file_put_contents($this->cookie_jar, json_encode($this->cookies));
+            self::forceFilePutContents($this->cookie_jar, json_encode($this->cookies));
         }
     }
 
@@ -469,7 +477,7 @@ class HttpClient {
         }
 
         if ($this->cookie_jar) {
-            file_put_contents($this->cookie_jar, json_encode($this->cookies));
+            self::forceFilePutContents($this->cookie_jar, json_encode($this->cookies));
         }
     }
 
@@ -479,7 +487,7 @@ class HttpClient {
         }
 
         if ($this->cookie_jar) {
-            file_put_contents($this->cookie_jar, json_encode($this->cookies));
+            self::forceFilePutContents($this->cookie_jar, json_encode($this->cookies));
         }
     }
 
@@ -1102,16 +1110,35 @@ class HttpClient {
                             }
                             break;
                         case 'content-encoding':
-                            if (strtolower($value) == 'gzip') {
-                                $this->is_gzipped = true;
+                            $isGzip = false;
+                            if (is_array($value)) {
+                                $params = array_map('strtolower', $value);
+                                if (array_pop($params) === 'gzip') {
+                                    $isGzip = true;
+                                }
+                            } else if (strtolower($value) == 'gzip') {
+                                $isGzip = true;
+                            }
 
+                            if ($isGzip) {
+                                $this->is_gzipped = true;
                                 if ($this->auto_deflate) {
                                     $this->gzip_filter = stream_filter_append($this->body_stream, "zlib.inflate", STREAM_FILTER_WRITE);
                                 }
                             }
                             break;
                         case 'transfer-encoding':
-                            if (strtolower($value) != 'identity') {
+                            $isChunked = false;
+                            if (is_array($value)) {
+                                $params = array_map('strtolower', $value);
+                                if (array_pop($params) != 'identity') {
+                                    $isChunked = true;
+                                }
+                            } else if (strtolower($value) != 'identity') {
+                                $isChunked = true;
+                            }
+
+                            if ($isChunked) {
                                 $this->is_chunked = true;
                             }
                         }
@@ -1477,6 +1504,16 @@ class HttpClient {
             "url" => $this->URL,
             "backtrace" => debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)
         ];
+    }
+
+    private static function forceFilePutContents($filePath, $message)
+    {
+        $folderName = dirname($filePath);
+        clearstatcache(true);
+        if (!is_dir($folderName)) {
+            mkdir($folderName, 0755, true);
+        }
+        file_put_contents($filePath, $message);
     }
 
     private function error_sink($errno, $errstr) {}
