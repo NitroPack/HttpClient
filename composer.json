@@ -11,6 +11,6 @@
         "psr-4": { "NitroPack\\HttpClient\\": "src/" }
     },
     "require": {
-        "nitropack/url": "~v1.0.0"
+        "nitropack/url": "~v1.1.0"
     }
 }
